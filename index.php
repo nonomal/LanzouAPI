@@ -25,7 +25,7 @@ if (empty($url)) {
 	    );
 }
 //一个简单的链接处理
-$url='https://www.lanzouq.com/'.explode('.com/',$url)['1'];
+$url='https://www.lanzouf.com/'.explode('.com/',$url)['1'];
 $softInfo = MloocCurlGet($url);
 //判断文件链接是否失效
 if (strstr($softInfo, "文件取消分享了") != false) {
@@ -74,7 +74,7 @@ if(strstr($softInfo, "function down_p(){") != false) {
 		"p" => $pwd,
 		"kd" => 1
 	);
-	$softInfo = MloocCurlPost($post_data, "https://www.lanzouq.com/".$ajaxm[0][0], $url);
+	$softInfo = MloocCurlPost($post_data, "https://www.lanzouf.com/".$ajaxm[0][0], $url);
 	$softName[1] = json_decode($softInfo,JSON_UNESCAPED_UNICODE)['inf'];
 } else {
 	//不带密码的链接处理
@@ -83,7 +83,7 @@ if(strstr($softInfo, "function down_p(){") != false) {
 	if(empty($link[1])) {
 		preg_match("~<iframe.*?name=\"[\s\S]*?\"\ssrc=\"\/(.*?)\"~", $softInfo, $link);
 	}
-	$ifurl = "https://www.lanzouq.com/" . $link[1];
+	$ifurl = "https://www.lanzouf.com/" . $link[1];
 	$softInfo = MloocCurlGet($ifurl);
 	preg_match_all("~wp_sign = '(.*?)'~", $softInfo, $segment);
 	preg_match_all("~ajaxdata = '(.*?)'~", $softInfo, $signs);
@@ -97,7 +97,7 @@ if(strstr($softInfo, "function down_p(){") != false) {
 		"kd" => 1,
 		"ves" => 1
 	);
-	$softInfo = MloocCurlPost($post_data, "https://www.lanzouq.com/".$ajaxm[0][1], $ifurl);
+	$softInfo = MloocCurlPost($post_data, "https://www.lanzouf.com/".$ajaxm[0][1], $ifurl);
 }
 //其他情况下的信息输出
 $softInfo = json_decode($softInfo, true);
