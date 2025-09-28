@@ -2,8 +2,8 @@
 /**
  * @package Lanzou
  * @author Filmy,hanximeng
- * @version 1.3.102
- * @Date 2025-09-27
+ * @version 1.3.103
+ * @Date 2025-09-28
  * @link https://hanximeng.com
  */
 header('Access-Control-Allow-Origin:*');
@@ -113,8 +113,14 @@ if ($softInfo['zt'] != 1) {
 }
 //拼接链接
 $downUrl1 = $softInfo['dom'] . '/file/' . $softInfo['url'];
+
+//cookie生成
+$softInfo=MloocCurlGet($downUrl1);
+preg_match_all("~arg1='(.*?)'~", $softInfo, $arg);
+$decrypted = acw_sc_v2_simple($arg["1"]["0"]);
+
 //解析最终直链地址
-$downUrl2 = MloocCurlHead($downUrl1,"https://developer.lanzoug.com",$UserAgent,"down_ip=1; expires=Sat, 16-Nov-2019 11:42:54 GMT; path=/; domain=.baidupan.com");
+$downUrl2 = MloocCurlHead($downUrl1,"https://developer.lanzoug.com",$UserAgent,"down_ip=1; expires=Sat, 16-Nov-2019 11:42:54 GMT; path=/; domain=.baidupan.com;acw_sc__v2=".$decrypted);
 //判断最终链接是否获取成功，如未成功则使用原链接
 if(strpos($downUrl2,"http") === false) {
 	$downUrl = $downUrl1;
@@ -165,7 +171,8 @@ function MloocCurlGet($url = '', $UserAgent = '') {
 	curl_setopt($curl, CURLOPT_HTTPHEADER, array('X-FORWARDED-FOR:'.Rand_IP(), 'CLIENT-IP:'.Rand_IP()));
 	#关闭SSL
 	    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-	curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+	    curl_setopt($curl, CURLOPT_ENCODING, 'gzip');
+	    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
 	#返回数据不直接显示
 	    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
 	$response = curl_exec($curl);
@@ -230,5 +237,29 @@ function Rand_IP() {
 	$randarr= mt_rand(0,count($arr_1)-1);
 	$ip1id = $arr_1[$randarr];
 	return $ip1id.".".$ip2id.".".$ip3id.".".$ip4id;
+}
+//cookie生成函数
+function acw_sc_v2_simple($arg1) {
+    $posList = [15,35,29,24,33,16,1,38,10,9,19,31,40,27,22,23,25,13,6,11,39,18,20,8,14,21,32,26,2,30,7,4,17,5,3,28,34,37,12,36];
+    $mask = '3000176000856006061501533003690027800375';
+    $outPutList = array_fill(0, 40, '');
+    for ($i = 0; $i < strlen($arg1); $i++) {
+        $char = $arg1[$i];
+        foreach ($posList as $j => $pos) {
+            if ($pos == $i + 1) {
+                $outPutList[$j] = $char;
+            }
+        }
+    }
+    $arg2 = implode('', $outPutList);
+    $result = '';
+    $length = min(strlen($arg2), strlen($mask));
+    for ($i = 0; $i < $length; $i += 2) {
+        $strHex = substr($arg2, $i, 2);
+        $maskHex = substr($mask, $i, 2);
+        $xorResult = dechex(hexdec($strHex) ^ hexdec($maskHex));
+        $result .= str_pad($xorResult, 2, '0', STR_PAD_LEFT);
+    }
+    return $result;
 }
 ?>
